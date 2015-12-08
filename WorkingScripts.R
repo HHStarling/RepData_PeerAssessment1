@@ -1,5 +1,6 @@
 ## Load dependencies
 library(dplyr)
+library(ggplot2)
 
 ## Pull data from online location
 fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
@@ -19,7 +20,7 @@ str(allData)
 
 ## Change date column to be date data type
 allData$date <- as.Date(allData$date, format = "%Y-%m-%d")
-allData$time <- as.difftime(allData$interval, units="mins")
+## allData$time <- as.difftime(allData$interval, units="mins")
 
 ## Mean total steps taken per day
 ### Calculate total number of steps per day
@@ -37,21 +38,30 @@ rug(summaryDays$totalSteps)
 text(x=meanSteps, y=25, pos=4, labels=paste("mean",meanSteps,sep="="), col="red")
 text(x=medSteps, y=20, pos=4, labels=paste("median",medSteps,sep="="), col="blue")
 
+## average daily activity pattern
+patterns <- group_by(allData, interval)
+summaryPatterns <- summarize(patterns, avgSteps=mean(steps, na.rm=T))
+
+## plot intervals by average steps
+## find interval with max average number steps
+intMaxRow <- which.max(summaryPatterns$avgSteps)
+xValue <- summaryPatterns$interval[intMaxRow]
+        
+## uses ggplot library
+g <- ggplot(summaryPatterns, aes(interval, avgSteps))
+g <- g + labs(title="Avg Daily Activity Pattern") + labs(x="5 Minute Interval") + labs(y="Average # Steps")
+g <- g + annotate("text", x=xValue + 500, y=175, label=paste("max=interval",xValue))
+g <- g + geom_vline(xintercept=xValue)
+g <- g + geom_line()
+print(g)
 
 
 
-allData$dateTime <- paste(allData$date, allData$time)
-allData$dateTime2 <- as.Date(allData$dateTime)
 
-allData$dateTime <- as.difftime(allData$interval, units="mins")
 
-allData$dateTime <- paste(allData$date, allData$interval)
-allData$dateTime <- as.Date(allData$dateTime, format = "%Y-%m-%d %")
 
-## Add column with time based on interval column
-mutate(allData, obsTime=strptime(allData$interval, format="%k"))
 
-## Mean total steps taken per day
-### Calculate total number of steps per day
-days <- group_by(allData, date)
-summaryDays <- summarize(days, totalSteps=sum(steps), meanSteps=mean(steps, na.rm=TRUE), medSteps=median(steps, na.rm=TRUE))
+
+
+
+
