@@ -50,15 +50,40 @@ xValue <- summaryPatterns$interval[intMaxRow]
 ## uses ggplot library
 g <- ggplot(summaryPatterns, aes(interval, avgSteps))
 g <- g + labs(title="Avg Daily Activity Pattern") + labs(x="5 Minute Interval") + labs(y="Average # Steps")
-g <- g + annotate("text", x=xValue + 500, y=175, label=paste("max=interval",xValue))
-g <- g + geom_vline(xintercept=xValue)
+g <- g + annotate("text", x=xValue + 500, y=175, label=paste("max=interval",xValue), col="red")
+g <- g + geom_vline(xintercept=xValue, col="red")
 g <- g + geom_line()
 print(g)
 
+## inputting missing values
+## total number of NAs
+colSums(is.na(allData))
+
+## replace NAs with mean value for that interval over the data set
+## identify NA rows in logical vector
+goodData <- complete.cases(allData)
 
 
 
 
+
+
+
+
+
+## ??
+## update allData NA values
+completeData <- allData
+completeData[!goodData,completeData$steps] <- 
+        summaryPatterns[summaryPatterns$interval,summaryPatterns$avgSteps]
+
+## add rownames matching interval
+row.names(summaryPatterns) <- summaryPatterns$interval
+
+
+
+
+completeData[is.na(completeData)] <- summaryPatterns$
 
 
 
